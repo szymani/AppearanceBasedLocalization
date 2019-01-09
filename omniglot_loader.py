@@ -343,8 +343,13 @@ class OmniglotLoader:
         available_images = dictionary[current_section]
 
         image_indexes = random.sample(range(0, len(available_images) - 1), 2)
-        image_path = os.path.join(
-            self.dataset_path, current_section)
+
+        if is_validation:
+            image_path = os.path.join(
+                self.dataset_path, current_section)
+        else:
+            image_path = os.path.join(
+                'evaluation/', current_section)
 
         test_image = os.path.join(
             image_path, available_images[image_indexes[0]])
@@ -368,18 +373,30 @@ class OmniglotLoader:
 
         support_characters_indexes = random.sample(
             range(0, number_of_sections - 1), number_of_support_characters - 1)
+        if is_validation:
+            for index in support_characters_indexes:
+                current_section = different_sections[index]
+                available_images = dictionary[current_section]
+                image_path = os.path.join(
+                    self.dataset_path, current_section)
 
-        for index in support_characters_indexes:
-            current_section = different_sections[index]
-            available_images = dictionary[current_section]
-            image_path = os.path.join(
-                self.dataset_path, current_section)
+                image_indexes = random.sample(range(0, len(available_images) - 1), 1)
+                image = os.path.join(
+                    image_path, available_images[image_indexes[0]])
+                batch_images_path.append(test_image)
+                batch_images_path.append(image)
+        else:
+            for index in support_characters_indexes:
+                current_section = different_sections[index]
+                available_images = dictionary[current_section]
+                image_path = os.path.join(
+                    'evaluation', current_section)
 
-            image_indexes = random.sample(range(0, len(available_images) - 1), 1)
-            image = os.path.join(
-                image_path, available_images[image_indexes[0]])
-            batch_images_path.append(test_image)
-            batch_images_path.append(image)
+                image_indexes = random.sample(range(0, len(available_images) - 1), 1)
+                image = os.path.join(
+                    image_path, available_images[image_indexes[0]])
+                batch_images_path.append(test_image)
+                batch_images_path.append(image)
 
         images, labels = self.__convert_path_list_to_images_and_labels(
             batch_images_path, is_one_shot_task=True)
