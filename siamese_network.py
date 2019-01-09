@@ -6,7 +6,7 @@ from keras.layers import Conv2D, MaxPool2D, Flatten, Dense, Input, Subtract, Lam
 from keras.optimizers import Adam, SGD
 from keras.regularizers import l2
 import keras.backend as K
-
+import time
 import tensorflow as tf
 
 import matplotlib.pyplot as plt
@@ -301,12 +301,18 @@ class SiameseNetwork:
                 print('Validation Accuracy = ' + str(best_validation_accuracy))
                 break
 
+
+        ts = time.time()
+        plt.figure(1)
         plt.plot(train_losses)
         plt.ylabel('loss')
-        plt.show()
+        plt.savefig('loss' + datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + '.png')
+        # plt.show()
 
-        plt.plot(train_accuracy)
+        plt.figure(2)
+        plt.plot(train_accuracies)
         plt.ylabel('acc')
+        plt.savefig('acc' + datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + '.png')
         plt.show()
 
         print('Trained Ended!')
