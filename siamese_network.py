@@ -131,6 +131,12 @@ class SiameseNetwork:
             lambda tensors: K.abs(tensors[0] - tensors[1]))
         l1_distance = l1_distance_layer([encoded_image_1, encoded_image_2])
 
+        #L2 distance
+        l2_distance_layer = Lambda(
+            lambda tensors:  K.sqrt(K.sum(K.square(tensors[0] - tensors[1]), axis=-1)))
+        l2_distance = l2_distance_layer([encoded_image_1, encoded_image_2])
+
+
         # Same class or not prediction
         prediction = Dense(units=1, activation='sigmoid')(l1_distance)
         self.model = Model(
