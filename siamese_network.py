@@ -16,6 +16,7 @@ import numpy as np
 from omniglot_loader import OmniglotLoader
 from modified_sgd import Modified_SGD
 
+import datetime
 
 class SiameseNetwork:
     """Class that constructs the Siamese Net for training
@@ -104,12 +105,12 @@ class SiameseNetwork:
                                      name='Conv3'))
         convolutional_net.add(MaxPool2D())
 
-        convolutional_net.add(Conv2D(filters=64, kernel_size=(4, 4),
-                                     activation='relu',
-                                     kernel_regularizer=l2(
-                                         l2_regularization_penalization['Conv4']),
-                                     name='Conv4'))
-        convolutional_net.add(MaxPool2D())
+        # convolutional_net.add(Conv2D(filters=64, kernel_size=(4, 4),
+        #                              activation='relu',
+        #                              kernel_regularizer=l2(
+        #                                  l2_regularization_penalization['Conv4']),
+        #                              name='Conv4'))
+        # convolutional_net.add(MaxPool2D())
 
         convolutional_net.add(Flatten())
         convolutional_net.add(
@@ -227,12 +228,19 @@ class SiameseNetwork:
         # after evaluate_each iterations these will be passed to tensorboard logs
         train_losses = np.zeros(shape=(evaluate_each))
         train_accuracies = np.zeros(shape=(evaluate_each))
+        plot_losses = []
+        plot_acc = []
         count = 0
         earrly_stop = 0
         # Stop criteria variables
         best_validation_accuracy = 0.0
         best_accuracy_iteration = 0
         validation_accuracy = 0.0
+
+        start = time.time()
+
+        end = time.time()
+        print(end - start)
 
 
         # Train loop
@@ -246,9 +254,9 @@ class SiameseNetwork:
 
             # Decay learning rate 1 % per 500 iterations (in the paper the decay is
             # 1% per epoch). Also update linearly the momentum (starting from 0.5 to 1)
-            if (iteration + 1) % 100 == 0:
+            if (iteration + 1) % 500 == 0:
                 K.set_value(self.model.optimizer.lr, K.get_value(
-                    self.model.optimizer.lr) * 0.98)
+                    self.model.optimizer.lr) * 0.99)
             if K.get_value(self.model.optimizer.momentum) < final_momentum:
                 K.set_value(self.model.optimizer.momentum, K.get_value(
                     self.model.optimizer.momentum) + momentum_slope)
@@ -273,7 +281,13 @@ class SiameseNetwork:
                 self.__write_logs_to_tensorboard(
                     iteration, train_losses, train_accuracies,
                     validation_accuracy, evaluate_each)
+                # plot_losses.extend(train_losses)
+                print(validation_accuracy)
+                plot_acc.append(validation_accuracy)
                 count = 0
+
+                end = time.time()
+                print(str(iteration) + ' Iterations computed in: ' + str((end - start)/60))
 
                 # Some hyperparameters lead to 100%, although the output is almost the same in
                 # all images.
@@ -307,16 +321,9 @@ class SiameseNetwork:
                 print('Validation Accuracy = ' + str(best_validation_accuracy))
                 break
 
-
         ts = time.time()
-        plt.figure(1)
-        plt.plot(train_losses)
-        plt.ylabel('loss')
-        plt.savefig('loss' + datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + '.png')
-        # plt.show()
-
-        plt.figure(2)
-        plt.plot(train_accuracies)
+        plt.figure()
+        plt.plot(plot_acc)
         plt.ylabel('acc')
         plt.savefig('acc' + datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S') + '.png')
         plt.show()

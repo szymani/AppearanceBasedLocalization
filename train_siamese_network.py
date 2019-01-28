@@ -2,10 +2,10 @@ from siamese_network import SiameseNetwork
 
 
 def main():
-    dataset_path = 'SekcjeMale'
+    dataset_path = 'Sekcje'
     use_augmentation = True
-    learning_rate = 10e-3
-    batch_size = 10
+    learning_rate = 1e-2
+    batch_size = 16
     # Learning Rate multipliers for each layer
     learning_rate_multipliers = {}
     learning_rate_multipliers['Conv1'] = 1
@@ -35,8 +35,9 @@ def main():
     # linear epoch slope evolution
     momentum_slope = 0.01
     support_set_size = 20
-    evaluate_each = 100
-    number_of_train_iterations = 5000
+    evaluate_each = 1000
+
+    number_of_train_iterations = 30000
 
     validation_accuracy = siamese_network.train_siamese_network(number_of_iterations=number_of_train_iterations,
                                                                 support_set_size=support_set_size,
@@ -54,8 +55,6 @@ def main():
                                                                             20, 40, False)
     
     print('Final Evaluation Accuracy = ' + str(evaluation_accuracy))
-    # print('Final Evaluation Accuracy = ' + str(validation_accuracy))
-
 
 if __name__ == "__main__":
     main()
